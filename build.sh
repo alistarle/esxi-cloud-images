@@ -88,15 +88,12 @@ virt-install --connect qemu:///system \
 	--cpu host --disk path=/var/lib/libvirt/images/esxi-${VERSION}_tmp.qcow2,size=${disk_size},sparse=yes,target.bus=sata \
 	-c /var/lib/libvirt/images/new.iso --osinfo detect=on,require=off \
 	--accelerate --network=network:default,model=${nic_driver} \
-	--hvm --graphics vnc,listen=0.0.0.0
+	--hvm --graphics vnc,listen=0.0.0.0 \
+	--check disk_size=off
 sleep 180
 sudo qemu-img convert -f qcow2 -O qcow2 -c /var/lib/libvirt/images/esxi-${VERSION}_tmp.qcow2 esxi-${VERSION}.qcow2
 cp default_config.yaml esxi-${VERSION}.yaml
-if echo $VERSION|egrep '^7'; then
-    echo "default_nic_model: e1000e" >> esxi-${VERSION}.yaml
-else
-    echo "default_nic_model: e1000" >> esxi-${VERSION}.yaml
-fi
+echo "default_nic_model: e1000e" >> esxi-${VERSION}.yaml
 
 sudo virsh undefine --remove-all-storage esxi-${VERSION}_tmp
 sudo rm /var/lib/libvirt/images/new.iso
