@@ -59,17 +59,6 @@ cat << 'EOF' > /etc/rc.local.d/local.sh
 # https://github.com/goneri/esxi-cloud-init/blob/master/esxi-cloud-init.py
 echo '$(curl -L -s https://raw.githubusercontent.com/goneri/esxi-cloud-init/master/esxi-cloud-init.py|base64 -)' | python -m base64 -d - > /etc/esxi-cloud-init.py
 
-# Create the Zuul user for the Ansible-CI
-/usr/lib/vmware/busybox/bin/busybox adduser -s /bin/sh -G root -H -D zuul
-mkdir /etc/ssh/keys-zuul
-sed -i 's,zuul:.*,zuul:\$6\$GUkqMukAyqY3Kj64\$L.Md7sh0Vjuyg553QPxrqlLH/O1j8XL5NxOJ1Fq7ufTpcd3pwhOy3R93yOAhsR8f4MN1Ne70c6qtk5KjiYxQ4/:18226:0:99999:7:::,' /etc/shadow
-echo 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDI3XA0A84nUpCr9mfkrDjBdoNFtYMXqXMm2+WsGrOJUA2ESodUDDfTKmsA/xEygdCnj8JfSC3SYhc0uKHVe0RdG20mzntUqD50kB0STFeOHh3ee7FXmMxcLqLlyY9pJkn1V5WOi/D1Lbz8MwRUVBfqufryavwHla/9CPuAtPcut8mTUB0+Rapnv8W3n4dA6PqHNW1tylJUXj6P4trJPnFrdfMaIxc21tfd/QrMM4h90phW3zNILE0qF9UHpQxP0zew/LcD9rc+IhnbgC3DeCQDyiqJOsJRDo58RuwWmQHCF0SfiFQJ4qwrc6TFSJqSdi2aRY0S/vRMbXkD+6Hg2KWQyz6Z6EpY7RARletqJwNnzuuhXr2HSCj5QALe+0U/aUEX+dnydYBX6Nqa+0Rz/qV5aUk4YP1C2/dBCAdbYXPotBT6QBfekE428mJV8Mr7G/M7kwZ8v9WjytyJ8/FYNuekYDWonk6QTwDgQhMTiQI3Yxnu3ID63BL959lfUIv96bsifVI6/D36KTAdFi/dl7Omn5MZ9A5JXA7l+yEJKf4pcPTpQcPbjGSKyaPu0uffEjV9CTr3+VMwzq1uenxGDQ9cT/ud4pEEjwU/ihr6yttouTCvDu9ydrflHljUXxf+X00NW7HkrHnvS43AGnxQzi9g2lTOC9yDlDGbQjmnVjec7w== zuul-executor' > /etc/ssh/keys-zuul/authorized_keys
-echo 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDgOp/WpwK0HBfgJoYDXo+yZbLqkNrbkbtk3p6MxJumQlXxXhKWY0uJXbrecjhJG6Ydv/6SzKQeoVWSPJUkZ0xD1l7KCPN+iNJyRQGwiyIi/Vd7JNt0pn+dblmPA5GzAwEMcT+49OlK0I1p1JwpSa0CFgNH8zSZOqCaH8yUiKtbc0UtCdQehSIcHvz573E2IbeDMG1omijf6fAT67tEAzEbsasCN/bSmXDraAQ+XIPPsFoifCQaSOL3SsyjG0awNfTotiBW68DqzR29KYwMQntM1ACVWPMda2rVTUFmV51ono/Ux2vRiV8zMCQAzZdy9gkF+3bDnK7VeY2rccp7EaVj root@managesf' >> /etc/ssh/keys-zuul/authorized_keys
-
-chown -R zuul:root /etc/ssh/keys-zuul
-chmod 600 /etc/ssh/keys-zuul/authorized_keys
-esxcli system permission set -i zuul -r Admin
-
 vim-cmd hostsvc/start_ssh
 python /etc/esxi-cloud-init.py > /etc/esxi-cloud-init.log 2>&1
 exit 0
@@ -91,7 +80,7 @@ sudo mv ${TARGET_ISO}.iso /var/lib/libvirt/images/
 sudo chmod 644 /var/lib/libvirt/images/new.iso
 
 nic_driver=vmxnet3
-disk_size=4
+disk_size=128
 echo "Deployment ongoing, you will just have to press [ENTER] at the end."
 virt-install --connect qemu:///system \
 	-n esxi-${VERSION}_tmp -r 4096 \
